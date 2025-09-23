@@ -4,8 +4,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 interface ApiStackProps extends cdk.StackProps {
-  helloLambda: lambda.Function;
-  pythonLambda: lambda.Function;
+  spacesLambda: lambda.Function;
 }
 
 export class ApiStack extends cdk.Stack {
@@ -23,30 +22,19 @@ export class ApiStack extends cdk.Stack {
     });
 
     // Create Lambda integrations
-    const helloIntegration = new apigateway.LambdaIntegration(
-      props.helloLambda,
-      {
-        requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
-      },
-    );
-
-    const pythonIntegration = new apigateway.LambdaIntegration(
-      props.pythonLambda,
+    const spacesIntegration = new apigateway.LambdaIntegration(
+      props.spacesLambda,
       {
         requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
       },
     );
 
     // Add resources and methods
-    const helloResource = api.root.addResource('hello');
-    helloResource.addMethod('GET', helloIntegration);
-
-    const helloPythonResource = api.root.addResource('hello-python');
-    helloPythonResource.addMethod('GET', pythonIntegration);
-
-    // Add a catch-all proxy resource for additional paths
-    const proxyResource = api.root.addResource('{proxy+}');
-    proxyResource.addMethod('ANY', helloIntegration);
+    const spacesResource = api.root.addResource('spaces');
+    spacesResource.addMethod('GET', spacesIntegration);
+    spacesResource.addMethod('POST', spacesIntegration);
+    spacesResource.addMethod('PUT', spacesIntegration);
+    spacesResource.addMethod('DELETE', spacesIntegration);
 
     // Output the API Gateway URL
     new cdk.CfnOutput(this, 'ApiGatewayUrl', {
@@ -55,14 +43,9 @@ export class ApiStack extends cdk.Stack {
     });
 
     // Output specific endpoints
-    new cdk.CfnOutput(this, 'HelloEndpoint', {
-      value: `${api.url}hello`,
-      description: 'Hello TypeScript endpoint URL',
-    });
-
-    new cdk.CfnOutput(this, 'HelloPythonEndpoint', {
-      value: `${api.url}hello-python`,
-      description: 'Hello Python endpoint URL',
+    new cdk.CfnOutput(this, 'SpacesEndpoint', {
+      value: `${api.url}spaces`,
+      description: 'Spaces endpoint URL',
     });
   }
 }

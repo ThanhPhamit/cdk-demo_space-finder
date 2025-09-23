@@ -21,5 +21,6 @@ const lambdaStack = new LambdaStack(app, 'LambdaStack', {
 
 new ApiStack(app, 'ApiStack', {
   helloLambda: lambdaStack.helloLambda,
+  pythonLambda: lambdaStack.pythonLambda,
   env,
 });

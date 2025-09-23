@@ -4,46 +4,65 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 interface ApiStackProps extends cdk.StackProps {
-    helloLambda: lambda.Function;
+  helloLambda: lambda.Function;
+  pythonLambda: lambda.Function;
 }
 
 export class ApiStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props: ApiStackProps) {
-        super(scope, id, props);
+  constructor(scope: Construct, id: string, props: ApiStackProps) {
+    super(scope, id, props);
 
-        // Create API Gateway
-        const api = new apigateway.RestApi(this, 'SpaceApi', {
-            restApiName: 'Space Service',
-            description: 'API Gateway for Space Lambda function',
-            defaultCorsPreflightOptions: {
-                allowOrigins: apigateway.Cors.ALL_ORIGINS,
-                allowMethods: apigateway.Cors.ALL_METHODS,
-            },
-        });
+    // Create API Gateway
+    const api = new apigateway.RestApi(this, 'SpaceApi', {
+      restApiName: 'Space Service',
+      description: 'API Gateway for Space Lambda function',
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowMethods: apigateway.Cors.ALL_METHODS,
+      },
+    });
 
-        // Create Lambda integration
-        const helloIntegration = new apigateway.LambdaIntegration(props.helloLambda, {
-            requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
-        });
+    // Create Lambda integrations
+    const helloIntegration = new apigateway.LambdaIntegration(
+      props.helloLambda,
+      {
+        requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
+      },
+    );
 
-        // Add resource and method
-        const helloResource = api.root.addResource('hello');
-        helloResource.addMethod('GET', helloIntegration);
+    const pythonIntegration = new apigateway.LambdaIntegration(
+      props.pythonLambda,
+      {
+        requestTemplates: { 'application/json': '{ "statusCode": "200" }' },
+      },
+    );
 
-        // Add a catch-all proxy resource for additional paths
-        const proxyResource = api.root.addResource('{proxy+}');
-        proxyResource.addMethod('ANY', helloIntegration);
+    // Add resources and methods
+    const helloResource = api.root.addResource('hello');
+    helloResource.addMethod('GET', helloIntegration);
 
-        // Output the API Gateway URL
-        new cdk.CfnOutput(this, 'ApiGatewayUrl', {
-            value: api.url,
-            description: 'URL of the API Gateway',
-        });
+    const helloPythonResource = api.root.addResource('hello-python');
+    helloPythonResource.addMethod('GET', pythonIntegration);
 
-        // Output specific endpoints
-        new cdk.CfnOutput(this, 'HelloEndpoint', {
-            value: `${api.url}hello`,
-            description: 'Hello endpoint URL',
-        });
-    }
+    // Add a catch-all proxy resource for additional paths
+    const proxyResource = api.root.addResource('{proxy+}');
+    proxyResource.addMethod('ANY', helloIntegration);
+
+    // Output the API Gateway URL
+    new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+      value: api.url,
+      description: 'URL of the API Gateway',
+    });
+
+    // Output specific endpoints
+    new cdk.CfnOutput(this, 'HelloEndpoint', {
+      value: `${api.url}hello`,
+      description: 'Hello TypeScript endpoint URL',
+    });
+
+    new cdk.CfnOutput(this, 'HelloPythonEndpoint', {
+      value: `${api.url}hello-python`,
+      description: 'Hello Python endpoint URL',
+    });
+  }
 }

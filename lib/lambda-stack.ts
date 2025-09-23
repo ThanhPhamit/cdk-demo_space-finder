@@ -5,6 +5,7 @@ import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 interface LambdaStackProps extends cdk.StackProps {
   spacesTable: ITable;
@@ -28,7 +29,14 @@ export class LambdaStack extends cdk.Stack {
       },
     });
 
-    // Python Lambda function
+    this.helloLambda.addToRolePolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['s3:ListAllMyBuckets', 's3:ListBucket'],
+        resources: ['arn:aws:s3:::*'], // bad practice, should be more specific
+      }),
+    );
+
     this.pythonLambda = new PythonFunction(this, 'PythonHelloLambda', {
       runtime: lambda.Runtime.PYTHON_3_12,
       entry: join(__dirname, '..', 'lambda', 'python'),
@@ -40,7 +48,7 @@ export class LambdaStack extends cdk.Stack {
       },
     });
 
-    // Output the function ARNs
+    // Output Lambda function ARNs
     new cdk.CfnOutput(this, 'HelloLambdaFunctionArn', {
       value: this.helloLambda.functionArn,
       description: 'ARN of the Hello Lambda function',
@@ -49,6 +57,28 @@ export class LambdaStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'PythonLambdaFunctionArn', {
       value: this.pythonLambda.functionArn,
       description: 'ARN of the Python Hello Lambda function',
+    });
+
+    // Output CloudWatch Log Group Names
+    new cdk.CfnOutput(this, 'HelloLambdaLogGroup', {
+      value: this.helloLambda.logGroup.logGroupName,
+      description: 'CloudWatch Log Group for Hello Lambda',
+    });
+
+    new cdk.CfnOutput(this, 'PythonLambdaLogGroup', {
+      value: this.pythonLambda.logGroup.logGroupName,
+      description: 'CloudWatch Log Group for Python Lambda',
+    });
+
+    // Output CloudWatch Log Group ARNs
+    new cdk.CfnOutput(this, 'HelloLambdaLogGroupArn', {
+      value: this.helloLambda.logGroup.logGroupArn,
+      description: 'CloudWatch Log Group ARN for Hello Lambda',
+    });
+
+    new cdk.CfnOutput(this, 'PythonLambdaLogGroupArn', {
+      value: this.pythonLambda.logGroup.logGroupArn,
+      description: 'CloudWatch Log Group ARN for Python Lambda',
     });
   }
 }

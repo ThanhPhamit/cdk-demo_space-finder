@@ -11,3 +11,6 @@ cdk.out
 # Environment files
 .env
 .env.*.local    
+
+# .vscode
+.vscode/*

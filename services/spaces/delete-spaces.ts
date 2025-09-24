@@ -1,11 +1,20 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBDocumentClient, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { SpaceValidator } from './validation';
+import { hasAdminGroup } from '../../util';
 
 export async function deleteSpaces(
   event: APIGatewayProxyEvent,
   ddbDocClient: DynamoDBDocumentClient,
 ): Promise<APIGatewayProxyResult> {
+  if (!hasAdminGroup(event)) {
+    return {
+      statusCode: 403,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'Forbidden' }),
+    };
+  }
+
   if (event.queryStringParameters && 'id' in event.queryStringParameters) {
     const spaceId = event.queryStringParameters['id'];
 

@@ -6,6 +6,7 @@ import { DemoLambdaStack } from '../lib/demo-lambda-stack';
 import { DemoApiStack } from '../lib/demo-api-stack';
 import { LambdaStack } from '../lib/lambda-stack';
 import { ApiStack } from '../lib/api-stack';
+import { AuthStack } from '../lib/auth-stack';
 
 const app = new cdk.App();
 
@@ -34,7 +35,10 @@ const lambdaStack = new LambdaStack(app, 'SpacesLambdaStack', {
   env,
 });
 
+const authStack = new AuthStack(app, 'AuthStack', { env });
+
 new ApiStack(app, 'SpacesApiStack', {
   spacesLambda: lambdaStack.spacesLambda,
+  userPool: authStack.userPool,
   env,
 });

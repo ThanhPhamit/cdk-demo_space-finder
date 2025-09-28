@@ -8,13 +8,21 @@ import { join } from 'path';
 
 interface LambdaStackProps extends cdk.StackProps {
   spacesTable: ITable;
+  cloudfrontDomain: string; // Required CloudFront domain for CORS
 }
 
 export class LambdaStack extends cdk.Stack {
   public readonly spacesLambda: lambda.Function;
 
-  constructor(scope: Construct, id: string, props?: LambdaStackProps) {
+  constructor(scope: Construct, id: string, props: LambdaStackProps) {
     super(scope, id, props);
+
+    // Validate that CloudFront domain is provided
+    if (!props.cloudfrontDomain || props.cloudfrontDomain.trim() === '') {
+      throw new Error(
+        'CloudFront domain is required for Lambda stack configuration',
+      );
+    }
 
     this.spacesLambda = new NodejsFunction(this, 'SpacesLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
@@ -23,7 +31,8 @@ export class LambdaStack extends cdk.Stack {
       description: 'A simple Lambda function that logs events',
       timeout: cdk.Duration.minutes(5),
       environment: {
-        SPACES_TABLE_NAME: props?.spacesTable.tableName || '',
+        SPACES_TABLE_NAME: props.spacesTable.tableName,
+        CLOUDFRONT_DOMAIN: props.cloudfrontDomain,
       },
     });
 
@@ -37,7 +46,7 @@ export class LambdaStack extends cdk.Stack {
           'dynamodb:UpdateItem',
           'dynamodb:DeleteItem',
         ],
-        resources: [props?.spacesTable.tableArn || ''],
+        resources: [props.spacesTable.tableArn],
       }),
     );
 

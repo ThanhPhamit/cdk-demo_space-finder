@@ -7,19 +7,41 @@ import { Construct } from 'constructs';
 interface ApiStackProps extends cdk.StackProps {
   spacesLambda: lambda.Function;
   userPool: IUserPool;
+  cloudfrontDomain: string; // Required CloudFront domain from UIDeploymentStack
 }
 
 export class ApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
-    // Create API Gateway
+    // Validate that CloudFront domain is provided
+    if (!props.cloudfrontDomain || props.cloudfrontDomain.trim() === '') {
+      throw new Error(
+        'CloudFront domain is required for secure API CORS configuration',
+      );
+    }
+
+    // TODO: Remove localhost origin
+    // Use only the specific CloudFront domain for CORS
+    const allowedOrigins = [
+      `https://${props.cloudfrontDomain}`,
+      // 'http://localhost:5173',
+    ];
+
+    // Create API Gateway with dynamic CORS
     const api = new apigateway.RestApi(this, 'SpaceApi', {
       restApiName: 'Space Service',
       description: 'API Gateway for Space Lambda function',
       defaultCorsPreflightOptions: {
-        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowOrigins: allowedOrigins,
         allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: [
+          'Content-Type',
+          'X-Amz-Date',
+          'Authorization',
+          'X-Api-Key',
+          'X-Amz-Security-Token',
+        ],
       },
     });
 
@@ -48,7 +70,7 @@ export class ApiStack extends cdk.Stack {
       },
     );
 
-    // Add resources and methods
+    // Add resources and methods - Remove resource-level CORS since we have API-level CORS
     const spacesResource = api.root.addResource('spaces');
     spacesResource.addMethod('GET', spacesIntegration, optionsWithAuth);
     spacesResource.addMethod('POST', spacesIntegration, optionsWithAuth);

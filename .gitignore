@@ -13,4 +13,6 @@ cdk.out
 .env.*.local    
 
 # .vscode
-.vscode/*
+.vscode/
+
+*outputs.json

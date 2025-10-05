@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 import { Effect } from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import { Tracing } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { join } from 'path';
@@ -34,6 +35,7 @@ export class LambdaStack extends cdk.Stack {
         SPACES_TABLE_NAME: props.spacesTable.tableName,
         CLOUDFRONT_DOMAIN: props.cloudfrontDomain,
       },
+      tracing: Tracing.ACTIVE,
     });
 
     this.spacesLambda.addToRolePolicy(

@@ -137,8 +137,29 @@ export class AuthStack extends cdk.Stack {
     this.adminRole.addToPolicy(
       new PolicyStatement({
         effect: Effect.ALLOW,
-        actions: ['s3:PutObject', 's3:PutObjectAcl'],
+        actions: ['s3:ListAllMyBuckets'],
+        resources: ['*'],
+      }),
+    );
+
+    this.adminRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+          's3:PutObject',
+          's3:PutObjectAcl',
+          's3:GetObject',
+          's3:DeleteObject',
+        ],
         resources: [photosBucket.arnForObjects('*')],
+      }),
+    );
+
+    this.adminRole.addToPolicy(
+      new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: ['s3:ListBucket'],
+        resources: [photosBucket.bucketArn],
       }),
     );
   }

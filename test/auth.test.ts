@@ -1,11 +1,17 @@
 import { ListBucketsCommand, S3Client } from '@aws-sdk/client-s3';
 import { AwsCredentialIdentity } from '@aws-sdk/types';
 import { AuthService } from './auth-services';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
 
 async function testAuth() {
   const authService = new AuthService();
+  const username = process.env.AWS_COGNITO_USERNAME || '';
+  const password = process.env.AWS_COGNITO_PASSWORD || '';
   try {
-    const signInOutput = await AuthService.signIn('phamvanthanh', 'XXXXXX');
+    const signInOutput = await AuthService.signIn(username, password);
     console.log('Sign-in successful:', signInOutput);
 
     const idToken = await authService.getIdToken();

@@ -10,15 +10,28 @@ import { getSpaces } from './get-spaces';
 import { updateSpaces } from './update-spaces';
 import { deleteSpaces } from './delete-spaces';
 import { addCorsHeaders } from '../../util';
+import { captureAWSv3Client, getSegment } from 'aws-xray-sdk-core';
 
 const ddbClient = new DynamoDBClient({});
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
+const tracedDdbClient = captureAWSv3Client(ddbClient);
+
+const ddbDocClient = DynamoDBDocumentClient.from(tracedDdbClient);
 
 async function handler(
   event: APIGatewayProxyEvent,
   context: Context,
 ): Promise<APIGatewayProxyResult> {
   let response: APIGatewayProxyResult;
+
+  const segment = getSegment();
+  const subSeg = segment?.addNewSubsegment('MyLongCall');
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  subSeg?.close();
+
+  const subSeg2 = segment?.addNewSubsegment('MyLongCall');
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  subSeg2?.close();
+
   try {
     switch (event.httpMethod) {
       case 'GET':

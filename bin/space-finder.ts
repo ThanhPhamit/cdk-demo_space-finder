@@ -8,6 +8,7 @@ import { LambdaStack } from '../lib/lambda-stack';
 import { ApiStack } from '../lib/api-stack';
 import { AuthStack } from '../lib/auth-stack';
 import { UiDeploymentStack } from '../lib/ui-deployment-stack';
+import { MonitorStack } from '../lib/monitor-stack';
 
 const app = new cdk.App();
 
@@ -71,3 +72,5 @@ new ApiStack(app, 'SpacesApiStack', {
   cloudfrontDomain: uiDeploymentStack.distribution.distributionDomainName,
   env,
 });
+
+new MonitorStack(app, 'MonitorStack', { env });

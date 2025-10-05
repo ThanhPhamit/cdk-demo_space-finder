@@ -14,8 +14,8 @@ export class DemoApiStack extends cdk.Stack {
 
     // Create API Gateway
     const api = new apigateway.RestApi(this, 'SpaceApi', {
-      restApiName: 'Space Service',
-      description: 'API Gateway for Space Lambda function',
+      restApiName: 'Demo Space Service',
+      description: 'API Gateway for Demo Space Lambda function',
       defaultCorsPreflightOptions: {
         allowOrigins: apigateway.Cors.ALL_ORIGINS,
         allowMethods: apigateway.Cors.ALL_METHODS,

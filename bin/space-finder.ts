@@ -76,5 +76,5 @@ new ApiStack(app, 'SpacesApiStack', {
 
 new MonitorStack(app, 'MonitorStack', { env });
 
-// CICD Stack
-new CicdStack(app, 'CICDStack', { env });
+// CICD Stack - Deploy to us-east-1 to avoid ap-southeast-1 CodeBuild queue limits
+new CicdStack(app, 'CicdStack', { env });

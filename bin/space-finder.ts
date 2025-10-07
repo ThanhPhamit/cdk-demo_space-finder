@@ -9,6 +9,7 @@ import { ApiStack } from '../lib/api-stack';
 import { AuthStack } from '../lib/auth-stack';
 import { UiDeploymentStack } from '../lib/ui-deployment-stack';
 import { MonitorStack } from '../lib/monitor-stack';
+import { CicdStack } from '../lib/cicd-stack';
 
 const app = new cdk.App();
 
@@ -74,3 +75,6 @@ new ApiStack(app, 'SpacesApiStack', {
 });
 
 new MonitorStack(app, 'MonitorStack', { env });
+
+// CICD Stack
+new CicdStack(app, 'CICDStack', { env });

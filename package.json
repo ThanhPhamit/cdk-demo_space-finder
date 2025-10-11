@@ -4,6 +4,9 @@
   "bin": {
     "space-finder": "bin/space-finder.js"
   },
+  "resolutions": {
+    "@smithy/core": "^2.5.4"
+  },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",

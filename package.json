@@ -8,7 +8,7 @@
     "@smithy/core": "^2.5.4"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --skipLibCheck",
     "watch": "tsc -w",
     "test-services": "jest --config jest.services.config.ts",
     "test-infra": "jest --config jest.infra.config.ts",

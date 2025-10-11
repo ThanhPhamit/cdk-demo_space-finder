@@ -25,7 +25,7 @@ export class CicdStack extends cdk.Stack {
         commands: [
           // use yarn to install reproducibly, build, and run cdk synth via yarn
           'yarn install --frozen-lockfile',
-          'yarn build',
+          'yarn tsc --skipLibCheck',  // Skip lib check to avoid @smithy/core type errors
           'yarn cdk synth',
         ],
         primaryOutputDirectory: 'cdk.out',
